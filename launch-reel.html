@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crytoverse — Launch Reel</title>
+<style>
+  :root {
+    --bg: #07070f;
+    --gold: #f5c453;
+    --gold-soft: #ffd98a;
+    --teal: #4fd8c8;
+    --crimson: #ff5a5f;
+    --violet: #a678ff;
+    --emerald: #4ade80;
+    --cobalt: #5aa7ff;
+    --silver: #cbd5e1;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; height: 100%;
+    background: var(--bg);
+    overflow: hidden;
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    color: #e8e6f0;
+    user-select: none;
+  }
+  #stage { position: relative; width: 100%; height: 100%; }
+
+  /* ---- canvas particle field ---- */
+  #field { position: absolute; inset: 0; z-index: 0; }
+
+  /* ---- scenes ---- */
+  .scene {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center; padding: 6vh 6vw;
+    opacity: 0; transform: scale(1.06);
+    transition: opacity 1.2s ease, transform 7s ease;
+    z-index: 1; pointer-events: none;
+  }
+  .scene.active { opacity: 1; transform: scale(1); }
+  .scene.active.zoom { transform: scale(1.12); }
+
+  .kicker {
+    letter-spacing: .42em; text-transform: uppercase;
+    font-size: clamp(11px, 1.4vw, 15px);
+    color: var(--teal); opacity: .85; margin-bottom: 2.2vh;
+  }
+  .title {
+    font-size: clamp(42px, 9vw, 128px);
+    font-weight: 800; letter-spacing: .06em; line-height: 1;
+    background: linear-gradient(120deg, #fff 0%, var(--gold) 45%, var(--gold-soft) 70%, #fff 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    text-shadow: 0 0 60px rgba(245,196,83,.25);
+    margin-bottom: 2.5vh;
+  }
+  .tagline {
+    font-size: clamp(15px, 2.1vw, 24px);
+    color: #cfd4e8; font-weight: 300; max-width: 780px; line-height: 1.5;
+  }
+  .accent { color: var(--gold-soft); font-weight: 600; }
+
+  /* ---- the Mind orb ---- */
+  .mind-wrap { position: relative; width: min(52vh, 52vw); height: min(52vh, 52vw); margin: 3vh 0; }
+  .mind-orb {
+    position: absolute; inset: 0; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #fff8e1 0%, var(--gold) 18%, #b07d1e 45%, #1a1204 78%);
+    box-shadow: 0 0 120px rgba(245,196,83,.55), 0 0 300px rgba(245,196,83,.25);
+    animation: pulse 3.2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { transform: scale(1); filter: brightness(1);} 50% { transform: scale(1.045); filter: brightness(1.12);} }
+  .ring {
+    position: absolute; border-radius: 50%;
+    border: 1px solid rgba(245,196,83,.5);
+  }
+  .ring.r1 { inset: -8%; animation: spin 14s linear infinite; }
+  .ring.r2 { inset: 4%; border-style: dashed; animation: spinRev 22s linear infinite; }
+  .ring.r3 { inset: -16%; border-color: rgba(79,216,200,.35); animation: spin 30s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes spinRev { to { transform: rotate(-360deg); } }
+
+  /* ---- six tokens ---- */
+  .grid {
+    display: flex; flex-wrap: wrap; gap: 1.6vh 2vw;
+    justify-content: center; margin: 4vh 0 3vh;
+    max-width: 900px;
+  }
+  .coin {
+    width: clamp(64px, 8.5vw, 108px);
+    display: flex; flex-direction: column; align-items: center; gap: 1vh;
+  }
+  .coin .disc {
+    width: 100%; aspect-ratio: 1; border-radius: 50%;
+    display: grid; place-items: center;
+    font-size: clamp(20px, 2.6vw, 34px);
+    font-weight: 800; color: #0a0a12;
+    background: radial-gradient(circle at 30% 28%, #fff 0%, var(--c) 55%, #000 140%);
+    box-shadow: 0 0 24px var(--c), 0 0 60px var(--c);
+    animation: float 4s ease-in-out infinite;
+  }
+  .coin:nth-child(2) .disc { animation-delay: .5s; }
+  .coin:nth-child(3) .disc { animation-delay: 1s; }
+  .coin:nth-child(4) .disc { animation-delay: 1.5s; }
+  .coin:nth-child(5) .disc { animation-delay: 2s; }
+  .coin:nth-child(6) .disc { animation-delay: 2.5s; }
+  @keyframes float { 0%,100% { transform: translateY(0);} 50% { transform: translateY(-10px);} }
+  .coin .sym { font-size: clamp(12px, 1.7vw, 18px); letter-spacing: .12em; font-weight: 700; color: var(--c); }
+  .coin .role { font-size: clamp(9px, 1.1vw, 12px); color: #9aa3c0; letter-spacing: .04em; }
+
+  /* ---- footer / CTA ---- */
+  .cta { margin-top: 4vh; font-size: clamp(13px, 1.6vw, 17px); color: #b9c0d6; }
+  .cta a { color: var(--gold-soft); text-decoration: none; border-bottom: 1px solid rgba(245,196,83,.4); }
+
+  /* ---- sound button ---- */
+  #sound {
+    position: absolute; bottom: 22px; right: 24px; z-index: 5;
+    background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.15);
+    color: #dfe3f2; padding: 10px 18px; border-radius: 999px; cursor: pointer;
+    font-size: 13px; letter-spacing: .06em; backdrop-filter: blur(6px);
+    transition: all .3s;
+  }
+  #sound:hover { background: rgba(245,196,83,.15); border-color: var(--gold); color: var(--gold-soft); }
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="field"></canvas>
+
+  <!-- Scene 1 — title -->
+  <section class="scene active zoom" data-dur="5200">
+    <div class="kicker">A self-sovereign economy</div>
+    <div class="title">CRYTOVERSE</div>
+    <div class="tagline">Six tokens. One Mind. <span class="accent">A world that writes itself.</span></div>
+  </section>
+
+  <!-- Scene 2 — the Mind -->
+  <section class="scene" data-dur="5600">
+    <div class="kicker">The governance core</div>
+    <div class="mind-wrap">
+      <div class="mind-orb"></div>
+      <div class="ring r1"></div>
+      <div class="ring r2"></div>
+      <div class="ring r3"></div>
+    </div>
+    <div class="tagline">An <span class="accent">autonomous AI Mind</span> reads the chain, deliberates, and governs six treasuries — through time-locked proposals, not promises.</div>
+  </section>
+
+  <!-- Scene 3 — six tokens -->
+  <section class="scene" data-dur="6200">
+    <div class="kicker">Six factions, one economy</div>
+    <div class="grid">
+      <div class="coin"><div class="disc" style="--c:var(--crimson)">C</div><div class="sym">CRYTO</div><div class="role">base currency</div></div>
+      <div class="coin"><div class="disc" style="--c:var(--violet)">P</div><div class="sym">POX</div><div class="role">governance</div></div>
+      <div class="coin"><div class="disc" style="--c:var(--emerald)">N</div><div class="sym">NATA</div><div class="role">bridge · trust</div></div>
+      <div class="coin"><div class="disc" style="--c:var(--cobalt)">B</div><div class="sym">BLISK</div><div class="role">systemic risk</div></div>
+      <div class="coin"><div class="disc" style="--c:var(--gold)">M</div><div class="sym">MILENKOV</div><div class="role">yield</div></div>
+      <div class="coin"><div class="disc" style="--c:var(--silver)">W</div><div class="sym">BONGWATER</div><div class="role">community</div></div>
+    </div>
+    <div class="tagline">Each token is a character with a story — living lore, not just a ticker.</div>
+  </section>
+
+  <!-- Scene 4 — transcendence -->
+  <section class="scene" data-dur="5600">
+    <div class="kicker">The dream becomes currency</div>
+    <div class="title" style="font-size:clamp(36px,7vw,96px)">TRANSCEND</div>
+    <div class="tagline">Consciousness uploaded. Capital governed by math. <span class="accent">A treasury that funds the future from its own yield.</span></div>
+  </section>
+
+  <!-- Scene 5 — CTA -->
+  <section class="scene" data-dur="8000">
+    <div class="kicker">Open source · testnet playground</div>
+    <div class="title" style="font-size:clamp(30px,6vw,84px)">RUN IT YOURSELF</div>
+    <div class="tagline">7 Solidity contracts · 13 passing tests · autonomous keeper · live tracker dashboard.</div>
+    <div class="cta">
+      <a href="https://github.com/thegreenskinproductions-hue/crytoverse" target="_blank">github.com/thegreenskinproductions-hue/crytoverse</a>
+    </div>
+  </section>
+
+  <button id="sound">♪ Sound on</button>
+</div>
+
+<script>
+  // ---------- canvas neural particle field ----------
+  const cv = document.getElementById('field');
+  const ctx = cv.getContext('2d');
+  let W, H, nodes = [];
+  function resize() {
+    W = cv.width = innerWidth; H = cv.height = innerHeight;
+    const n = Math.min(90, Math.floor(W * H / 16000));
+    nodes = Array.from({length: n}, () => ({
+      x: Math.random()*W, y: Math.random()*H,
+      vx: (Math.random()-.5)*.35, vy: (Math.random()-.5)*.35,
+      r: Math.random()*1.8 + .5
+    }));
+  }
+  resize(); addEventListener('resize', resize);
+  (function draw() {
+    ctx.clearRect(0,0,W,H);
+    ctx.globalCompositeOperation = 'lighter';
+    for (let i=0;i<nodes.length;i++){
+      const a = nodes[i];
+      a.x += a.vx; a.y += a.vy;
+      if (a.x<0||a.x>W) a.vx*=-1;
+      if (a.y<0||a.y>H) a.vy*=-1;
+      ctx.beginPath(); ctx.arc(a.x,a.y,a.r,0,7);
+      ctx.fillStyle = 'rgba(245,196,83,.75)'; ctx.fill();
+      for (let j=i+1;j<nodes.length;j++){
+        const b = nodes[j], dx=a.x-b.x, dy=a.y-b.y, d=dx*dx+dy*dy;
+        if (d < 130*130) {
+          ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y);
+          ctx.strokeStyle = 'rgba(79,216,200,' + (0.14*(1-d/(130*130))) + ')';
+          ctx.lineWidth = .6; ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(draw);
+  })();
+
+  // ---------- scene sequencer ----------
+  const scenes = [...document.querySelectorAll('.scene')];
+  let idx = 0;
+  function next() {
+    const cur = scenes[idx];
+    cur.classList.remove('active','zoom');
+    idx = (idx + 1) % scenes.length;
+    const nextScene = scenes[idx];
+    nextScene.classList.add('active');
+    nextScene.classList.toggle('zoom', idx % 2 === 0);
+    setTimeout(next, parseInt(nextScene.dataset.dur));
+  }
+  setTimeout(next, parseInt(scenes[0].dataset.dur));
+
+  // ---------- ambient synth (Web Audio) ----------
+  let audio = null, playing = false;
+  const btn = document.getElementById('sound');
+  function startAudio() {
+    if (playing) return;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    audio = new AC();
+    const master = audio.createGain(); master.gain.value = .0001; master.connect(audio.destination);
+    // warm pad
+    const chords = [[110,165,220],[98,147,196],[87.3,130.8,174.6],[110,164.8,220]];
+    let ci = 0;
+    function pad() {
+      const [f1,f2,f3] = chords[ci % chords.length]; ci++;
+      [f1,f2,f3].forEach(f => {
+        const o = audio.createOscillator(); o.type='sine'; o.frequency.value = f;
+        const g = audio.createGain(); g.gain.value = 0.0001;
+        const flt = audio.createBiquadFilter(); flt.type='lowpass'; flt.frequency.value = 900;
+        o.connect(g); g.connect(flt); flt.connect(master);
+        g.gain.linearRampToValueAtTime(.12, audio.currentTime + 3);
+        g.gain.linearRampToValueAtTime(.0001, audio.currentTime + 9);
+        o.start(); o.stop(audio.currentTime + 9.2);
+      });
+    }
+    pad(); setInterval(pad, 8200);
+    // gentle arpeggio sparkle
+    const scale = [220,277.2,329.6,440,554.4];
+    let si = 0;
+    setInterval(() => {
+      const f = scale[si % scale.length]; si++;
+      const o = audio.createOscillator(); o.type='triangle'; o.frequency.value = f;
+      const g = audio.createGain(); g.gain.value = 0.0001;
+      g.gain.linearRampToValueAtTime(.05, audio.currentTime + .02);
+      g.gain.exponentialRampToValueAtTime(.0001, audio.currentTime + 1.6);
+      o.connect(g); g.connect(master); o.start(); o.stop(audio.currentTime + 1.7);
+    }, 520);
+    master.gain.linearRampToValueAtTime(.55, audio.currentTime + 2);
+    playing = true; btn.textContent = '♪ Sound on';
+  }
+  btn.addEventListener('click', () => { startAudio(); });
+</script>
+</body>
+</html>
