@@ -31,6 +31,20 @@ tunnel.err
 .node.pid
 deployments/
 mind/state.json
+mind/log.jsonl
+mind/journal.md
+mind/registry.json
+
+# === Tracker caches / generated data ===
+tracker/.coingecko-list.json
+tracker/.market-cache.json
+tracker/price-map.json
+tracker/race-history.json
+
+# === Scratch / verification scripts ===
+_*.js
+tracker/_*.js
+.remote-url.txt
 
 # === Large binaries ===
 tools/*.exe

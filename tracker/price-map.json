@@ -1,9 +1,0 @@
-{
-  "_doc": "Symbol -> price source. Leave a token with \"simulate\": true to force the simulated oracle (no real market exists for the fictional six). To peg a token to a real asset, set coingeckoId (e.g. \"bitcoin\", \"ethereum\") instead of simulate. Any symbol NOT listed here auto-resolves to a live CoinGecko/Binance price.",
-  "CRYTO": { "simulate": true },
-  "POX": { "simulate": true },
-  "NATA": { "simulate": true },
-  "BLISK": { "simulate": true },
-  "MILENKOV": { "simulate": true },
-  "BONGWATER": { "simulate": true }
-}
