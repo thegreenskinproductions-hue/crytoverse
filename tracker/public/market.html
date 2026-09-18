@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Crytoverse — Market Intelligence</title>
+<style>
+  :root {
+    --bg: #070a10; --bg2: #0d1220; --panel: #121828; --panel2: #0f1523;
+    --border: #232c44; --text: #e8edf7; --muted: #8b95ac;
+    --accent: #8b6cff; --accent2: #4dd0e1; --green: #3ddc84; --red: #ff5c7a; --amber: #ffb74d;
+    --mono: "Cascadia Code", "SF Mono", Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: radial-gradient(1200px 600px at 80% -10%, rgba(139,108,255,.12), transparent 60%),
+                radial-gradient(900px 500px at -10% 20%, rgba(77,208,225,.10), transparent 55%), var(--bg);
+    color: var(--text); font-family: "Segoe UI", system-ui, sans-serif; padding: 26px; line-height: 1.5; min-height: 100vh;
+  }
+  header { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 18px; }
+  h1 { font-size: 24px; letter-spacing: 1px; }
+  h1 .dot { color: var(--green); }
+  .subtitle { color: var(--muted); font-size: 13px; margin-top: 6px; max-width: 760px; }
+  .tabs { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+  .tab { background: var(--panel); border: 1px solid var(--border); color: var(--muted); padding: 8px 14px; border-radius: 10px; cursor: pointer; font-size: 13px; }
+  .tab.active { color: var(--text); border-color: var(--accent); background: rgba(139,108,255,.12); }
+  .mono { font-family: var(--mono); }
+  .up { color: var(--green); } .down { color: var(--red); } .flat { color: var(--muted); }
+
+  .overview { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .ov { background: linear-gradient(180deg, rgba(139,108,255,.08), transparent), var(--panel); border: 1px solid var(--border); border-radius: 13px; padding: 15px 17px; }
+  .ov .l { color: var(--muted); font-size: 10.5px; text-transform: uppercase; letter-spacing: .6px; }
+  .ov .v { font-size: 22px; font-weight: 700; margin-top: 4px; }
+  .ov .s { font-size: 12px; margin-top: 2px; }
+
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin-bottom: 18px; }
+  .panel h2 { font-size: 15px; margin-bottom: 14px; letter-spacing: .5px; }
+  .panel h2 .hint { color: var(--muted); font-size: 11.5px; font-weight: 400; margin-left: 8px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); font-size: 10.5px; text-transform: uppercase; letter-spacing: .5px; font-weight: 600; }
+  td.num { text-align: right; font-family: var(--mono); }
+  th.num { text-align: right; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 10.5px; font-weight: 600; }
+  .tag.ours { background: rgba(139,108,255,.18); color: #b8a4ff; }
+  .tag.market { background: rgba(77,208,225,.14); color: #7fdce8; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 10.5px; font-weight: 600; }
+  .bullish { background: rgba(61,220,132,.15); color: var(--green); }
+  .bearish { background: rgba(255,92,122,.15); color: var(--red); }
+  .neutral { background: rgba(255,183,77,.15); color: var(--amber); }
+
+  .race { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+  .race .card { background: var(--panel2); border: 1px solid var(--border); border-radius: 12px; padding: 15px; }
+  .race .card .big { font-size: 26px; font-weight: 700; }
+  .race .card .lab { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+  .verdict { padding: 14px 18px; border-radius: 12px; margin-bottom: 18px; font-weight: 700; font-size: 15px; border: 1px solid; }
+  .verdict.ours { background: rgba(61,220,132,.10); color: var(--green); border-color: rgba(61,220,132,.3); }
+  .verdict.market { background: rgba(255,92,122,.10); color: var(--red); border-color: rgba(255,92,122,.3); }
+
+  .status { color: var(--muted); font-size: 13px; text-align: right; }
+  .status .live { color: var(--green); font-weight: 600; }
+  .disclaimer { color: var(--muted); font-size: 11.5px; border-top: 1px solid var(--border); padding-top: 12px; margin-top: 4px; }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Market Intelligence <span class="dot">●</span></h1>
+    <div class="subtitle">Live tracking of the top real crypto + a head-to-head race between our six tokens and the market.</div>
+  </div>
+  <div class="status">Updated <span id="updated" class="live">—</span></div>
+</header>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('leaders')">Leaderboard</div>
+  <div class="tab" onclick="switchTab('race')">Ours vs Market</div>
+  <div class="tab" onclick="switchTab('movers')">Top Movers</div>
+</div>
+
+<div class="verdict ours" id="verdict">—</div>
+
+<div id="leaders" class="tab-panel">
+  <div class="overview" id="overview"></div>
+  <div class="panel">
+    <h2>Momentum Leaderboard <span class="hint">score = 50%·24h + 30%·7d + 20%·30d</span></h2>
+    <table>
+      <thead><tr><th>#</th><th>Asset</th><th>Side</th><th class="num">Price</th><th class="num">24h</th><th class="num">7d</th><th class="num">30d</th><th class="num">Momentum</th><th>Signal</th></tr></thead>
+      <tbody id="lb"></tbody>
+    </table>
+  </div>
+</div>
+
+<div id="race" class="tab-panel" style="display:none">
+  <div class="race" id="raceCards"></div>
+  <div class="panel">
+    <h2>Race — top movers by horizon</h2>
+    <table>
+      <thead><tr><th>Asset</th><th>Side</th><th class="num">24h</th><th class="num">7d</th></tr></thead>
+      <tbody id="raceTop"></tbody>
+    </table>
+  </div>
+</div>
+
+<div id="movers" class="tab-panel" style="display:none">
+  <div class="panel">
+    <h2>Top 24h Movers</h2>
+    <table><thead><tr><th>Asset</th><th>Side</th><th class="num">24h</th></tr></thead><tbody id="m24"></tbody></table>
+  </div>
+  <div class="panel">
+    <h2>Top 7d Movers</h2>
+    <table><thead><tr><th>Asset</th><th>Side</th><th class="num">7d</th></tr></thead><tbody id="m7"></tbody></table>
+  </div>
+</div>
+
+<div class="disclaimer">
+  ⚠️ Momentum is descriptive, not predictive — it ranks what has *already moved*, not what will move next. No edge is implied. This is educational tooling, not financial advice.
+</div>
+
+<script>
+let cache = { market: null, race: null };
+const fmt = (n, d = 2) => (n == null ? "—" : Number(n).toLocaleString(undefined, { minimumFractionDigits: d, maximumFractionDigits: d }));
+const pct = (n) => (n == null ? "—" : (n >= 0 ? "+" : "") + fmt(n, 2) + "%");
+const cls = (n) => (n == null ? "flat" : (n >= 0 ? "up" : "down"));
+const sideTag = (s) => `<span class="tag ${s}">${s}</span>`;
+const signal = (b) => `<span class="badge ${b}">${b}</span>`;
+
+function row(x, i, with30) {
+  return `<tr>
+    <td>${i == null ? "" : i + 1}</td>
+    <td><b>${x.symbol}</b> <span class="mono" style="color:var(--muted);font-size:11px">${x.name || ""}</span></td>
+    <td>${sideTag(x.side)}</td>
+    <td class="num">${x.price ? "$" + fmt(x.price, x.price < 1 ? 6 : 2) : "—"}</td>
+    <td class="num ${cls(x.chg24h)}">${pct(x.chg24h)}</td>
+    <td class="num ${cls(x.chg7d)}">${pct(x.chg7d)}</td>
+    ${with30 ? `<td class="num ${cls(x.chg30d)}">${pct(x.chg30d)}</td>` : ""}
+    ${x.score != null ? `<td class="num ${cls(x.score)}">${fmt(x.score, 2)}</td>` : ""}
+    ${x.bias ? `<td>${signal(x.bias)}</td>` : ""}
+  </tr>`;
+}
+
+function renderMarket(m) {
+  document.getElementById("updated").textContent = new Date(m.updatedAt).toLocaleTimeString();
+  const lb = document.getElementById("lb");
+  lb.innerHTML = m.leaderboard.map((x, i) => row(x, i, true)).join("");
+
+  const v = document.getElementById("verdict");
+  const ours = m.ours, real = m.real;
+  const a24 = ours.reduce((s, x) => s + (x.chg24h || 0), 0) / ours.length;
+  const b24 = real.reduce((s, x) => s + (x.chg24h || 0), 0) / real.length;
+  const win = a24 >= b24;
+  v.className = "verdict " + (win ? "ours" : "market");
+  v.textContent = `${win ? "OURS" : "MARKET"} is leading — avg 24h ${fmt(a24, 2)}% vs ${fmt(b24, 2)}%`;
+
+  document.getElementById("overview").innerHTML = `
+    <div class="ov"><div class="l">Our tokens</div><div class="v">${ours.length}</div></div>
+    <div class="ov"><div class="l">Market tracked</div><div class="v">${real.length}</div></div>
+    <div class="ov"><div class="l">Ours avg 24h</div><div class="v ${cls(a24)}">${pct(a24)}</div></div>
+    <div class="ov"><div class="l">Market avg 24h</div><div class="v ${cls(b24)}">${pct(b24)}</div></div>
+  `;
+}
+
+function renderRace(r) {
+  document.getElementById("raceCards").innerHTML = `
+    <div class="card"><div class="lab">Ours · avg 24h</div><div class="big ${cls(r.ours24)}">${pct(r.ours24)}</div></div>
+    <div class="card"><div class="lab">Market · avg 24h</div><div class="big ${cls(r.mkt24)}">${pct(r.mkt24)}</div></div>
+    <div class="card"><div class="lab">Gap (24h)</div><div class="big ${cls(r.gap24)}">${pct(r.gap24)}</div></div>
+    <div class="card"><div class="lab">Gap (7d)</div><div class="big ${cls(r.gap7)}">${pct(r.gap7)}</div></div>
+  `;
+  document.getElementById("raceTop").innerHTML =
+    (r.top24 || []).map((x) => row({ ...x, score: null, bias: null }, null, false)).join("");
+}
+
+function renderMovers(m) {
+  document.getElementById("m24").innerHTML = m.movers24.map((x) =>
+    row({ ...x, score: null, bias: null, chg30d: null }, null, false)).join("");
+  document.getElementById("m7").innerHTML = m.movers7.map((x) =>
+    row({ ...x, score: null, bias: null, chg30d: null }, null, false)).join("");
+}
+
+async function refresh() {
+  try {
+    const [m, r] = await Promise.all([
+      fetch("/api/market").then((x) => x.json()),
+      fetch("/api/race").then((x) => x.json()),
+    ]);
+    cache.market = m; cache.race = r;
+    renderMarket(m); renderRace(r); renderMovers(m);
+  } catch (e) {
+    document.getElementById("updated").textContent = "offline";
+  }
+}
+
+function switchTab(name) {
+  document.querySelectorAll(".tab").forEach((t, i) => t.classList.toggle("active", false));
+  document.querySelectorAll(".tab-panel").forEach((p) => (p.style.display = "none"));
+  document.getElementById(name).style.display = "";
+  const names = ["leaders", "race", "movers"];
+  document.querySelectorAll(".tab")[names.indexOf(name)].classList.add("active");
+}
+
+refresh();
+setInterval(refresh, 30000);
+</script>
+</body>
+</html>

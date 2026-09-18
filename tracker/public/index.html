@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Crytoverse — Mission Control</title>
+<style>
+  :root {
+    --bg: #070a10; --bg2: #0d1220; --panel: #121828; --panel2: #0f1523;
+    --border: #232c44; --text: #e8edf7; --muted: #8b95ac;
+    --accent: #8b6cff; --accent2: #4dd0e1; --green: #3ddc84; --red: #ff5c7a; --amber: #ffb74d;
+    --mono: "Cascadia Code", "SF Mono", Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: radial-gradient(1200px 600px at 80% -10%, rgba(139,108,255,.12), transparent 60%),
+                radial-gradient(900px 500px at -10% 20%, rgba(77,208,225,.10), transparent 55%), var(--bg);
+    color: var(--text); font-family: "Segoe UI", system-ui, sans-serif; padding: 26px; line-height: 1.5; min-height: 100vh;
+  }
+  header { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+  h1 { font-size: 25px; letter-spacing: 1px; }
+  h1 .dot { color: var(--green); }
+  .subtitle { color: var(--muted); font-size: 13px; margin-top: 6px; max-width: 680px; }
+  .status { color: var(--muted); font-size: 13px; text-align: right; }
+  .status .live { color: var(--green); font-weight: 600; }
+  .status .off { color: var(--red); font-weight: 600; }
+  .mono { font-family: var(--mono); }
+  .addr { color: var(--muted); font-family: var(--mono); font-size: 11px; word-break: break-all; }
+
+  .overview { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 22px; }
+  .ov { background: linear-gradient(180deg, rgba(139,108,255,.08), transparent), var(--panel); border: 1px solid var(--border); border-radius: 13px; padding: 15px 17px; }
+  .ov .l { color: var(--muted); font-size: 10.5px; text-transform: uppercase; letter-spacing: .6px; }
+  .ov .v { font-size: 21px; font-weight: 700; margin-top: 4px; }
+  .ov .s { font-size: 12px; margin-top: 2px; }
+  .up { color: var(--green); } .down { color: var(--red); }
+
+  .layout { display: grid; grid-template-columns: 1fr 320px; gap: 18px; align-items: start; }
+  @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 16px; }
+  .card .top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+  .sym { font-weight: 700; font-size: 16px; }
+  .name { color: var(--muted); font-size: 12px; }
+  .role { color: var(--accent2); font-size: 11px; margin-top: 2px; }
+  .price { font-size: 24px; font-weight: 700; }
+  .src { display: inline-block; font-size: 9.5px; padding: 2px 7px; border-radius: 10px; text-transform: uppercase; letter-spacing: .5px; margin-top: 2px; }
+  .src.coingecko { background: rgba(139,108,255,.16); color: #b9a6ff; border: 1px solid rgba(139,108,255,.35); }
+  .src.binance { background: rgba(240,185,11,.12); color: #f0b90b; border: 1px solid rgba(240,185,11,.35); }
+  .src.simulated { background: rgba(139,149,172,.12); color: var(--muted); border: 1px solid var(--border); }
+  .chips { display: flex; gap: 6px; margin: 6px 0 10px; flex-wrap: wrap; }
+  .chip { font-size: 11.5px; padding: 3px 8px; border-radius: 20px; background: var(--panel2); border: 1px solid var(--border); }
+  .chip.up { color: var(--green); border-color: rgba(61,220,132,.3); }
+  .chip.down { color: var(--red); border-color: rgba(255,92,122,.3); }
+  .chip.flat { color: var(--muted); }
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; font-size: 12px; color: var(--muted); margin-top: 8px; }
+  .stats b { color: var(--text); font-weight: 600; }
+  .treasury { margin-top: 10px; padding: 9px 10px; border-radius: 9px; background: var(--panel2); border: 1px solid var(--border); font-size: 12px; }
+  .treasury .t { color: var(--accent2); font-weight: 600; margin-bottom: 3px; }
+
+  .side .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 15px; margin-bottom: 14px; }
+  .side h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin-bottom: 10px; }
+  .info { display: flex; justify-content: space-between; font-size: 12.5px; padding: 4px 0; border-bottom: 1px dashed var(--border); }
+  .info:last-child { border-bottom: none; }
+  .info b { font-weight: 600; }
+  .cmd { font-family: var(--mono); font-size: 11.5px; background: var(--panel2); border: 1px solid var(--border); border-radius: 6px; padding: 5px 8px; margin: 4px 0 8px; color: var(--accent2); }
+
+  .progress { height: 6px; background: var(--panel2); border-radius: 4px; overflow: hidden; margin-top: 3px; }
+  .progress span { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+  .muted { color: var(--muted); }
+  .center { text-align: center; padding: 40px 0; color: var(--muted); }
+  footer { margin-top: 22px; color: var(--muted); font-size: 11.5px; }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Crytoverse <span class="dot">●</span> Mission Control</h1>
+    <div class="subtitle">AI-governed token ecosystem. Prices pull from live feeds (CoinGecko / Binance); fictional tokens fall back to a simulated oracle.</div>
+  </div>
+  <div class="status">Last update <span class="mono" id="updated">—</span><br>
+    <span id="conn"><span class="live">● LIVE</span></span> · Mind <span class="mono" id="mind">—</span>
+  </div>
+</header>
+
+<section class="overview" id="overview"></section>
+
+<div class="layout">
+  <div>
+    <div class="grid" id="grid"></div>
+  </div>
+  <aside class="side">
+    <div class="panel">
+      <h3>Price sources</h3>
+      <div id="sources"></div>
+    </div>
+    <div class="panel">
+      <h3>Mind governance</h3>
+      <div id="treasuries"></div>
+    </div>
+    <div class="panel">
+      <h3>Run locally</h3>
+      <div class="info"><span>Chain</span><b class="cmd" style="margin:0">npm run node</b></div>
+      <div class="info"><span>Seed tokens</span><b class="cmd" style="margin:0">npm run seed</b></div>
+      <div class="info"><span>Deploy Mind</span><b class="cmd" style="margin:0">npm run mind:deploy</b></div>
+      <div class="info"><span>Run Mind</span><b class="cmd" style="margin:0">npm run mind</b></div>
+      <div class="info" style="margin-top:6px">Open <b>http://localhost:3000</b></div>
+    </div>
+  </aside>
+</div>
+
+<footer>⚠️ Testnet / educational only. Not audited. Not financial advice.</footer>
+
+<script>
+const fmt = (n, d = 2) => Number(n).toLocaleString(undefined, { minimumFractionDigits: d, maximumFractionDigits: d });
+const pct = (n) => (n == null ? "—" : (n >= 0 ? "+" : "") + fmt(n, 2) + "%");
+const cls = (n) => (n == null ? "flat" : (n >= 0 ? "up" : "down"));
+const srcLabel = (s) => s === "simulated" ? "simulated" : s === "binance" ? "binance" : "coingecko";
+
+function sparkline(data, w = 260, h = 42) {
+  if (!data || data.length < 2) return "";
+  const min = Math.min(...data), max = Math.max(...data);
+  const range = max - min || 1;
+  const pts = data.map((v, i) => {
+    const x = (i / (data.length - 1)) * (w - 2) + 1;
+    const y = h - 2 - ((v - min) / range) * (h - 4);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(" ");
+  const up = data[data.length - 1] >= data[0];
+  const color = up ? "#3ddc84" : "#ff5c7a";
+  return `<svg width="${w}" height="${h}" style="display:block"><polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/></svg>`;
+}
+
+function render(p) {
+  document.getElementById("updated").textContent = new Date(p.updatedAt).toLocaleTimeString();
+  const conn = document.getElementById("conn");
+  conn.innerHTML = p.tokens.length ? '<span class="live">● LIVE</span>' : '<span class="off">● OFFLINE</span>';
+  document.getElementById("mind").textContent = p.mind ? p.mind.slice(0, 10) + "…" : "—";
+
+  const ov = document.getElementById("overview");
+  ov.innerHTML = `
+    <div class="ov"><div class="l">Treasury value</div><div class="v">$${fmt(p.totalValue, 0)}</div><div class="s muted">${p.governedTokens} governed tokens</div></div>
+    <div class="ov"><div class="l">24h P&L</div><div class="v ${cls(p.pnl24h)}">${p.pnl24h >= 0 ? "+" : ""}$${fmt(p.pnl24h, 0)}</div><div class="s ${cls(p.pnl24h)}">${pct(p.pnl24hPct)}</div></div>
+    <div class="ov"><div class="l">Market cap</div><div class="v">$${fmt(p.totalMarketCap, 0)}</div><div class="s muted">aggregate</div></div>
+    <div class="ov"><div class="l">Holders</div><div class="v">${fmt(p.totalHolders, 0)}</div><div class="s muted">across all tokens</div></div>
+  `;
+
+  const grid = document.getElementById("grid");
+  grid.innerHTML = p.tokens.map((t) => `
+    <div class="card">
+      <div class="top">
+        <div>
+          <div class="sym">$${t.symbol}</div>
+          <div class="name">${t.name}</div>
+          <div class="role">${t.role}</div>
+          <span class="src ${srcLabel(t.source)}">${srcLabel(t.source)}</span>
+        </div>
+        <div class="addr">${t.address.slice(0, 8)}…</div>
+      </div>
+      <div class="price">$${fmt(t.price, 4)}</div>
+      <div class="chips">
+        <span class="chip ${cls(t.chg24h)}">24h ${pct(t.chg24h)}</span>
+        <span class="chip ${cls(t.chg7d)}">7d ${pct(t.chg7d)}</span>
+      </div>
+      ${sparkline(t.spark)}
+      <div class="stats">
+        <span>Market cap <b>$${fmt(t.marketCap, 0)}</b></span>
+        <span>Holders <b>${fmt(t.holders, 0)}</b></span>
+        <span>Supply <b>${fmt(t.supply, 0)}</b></span>
+        <span>Transfers <b>${fmt(t.transfers, 0)}</b></span>
+        <span>Burned <b>${fmt(t.burned, 0)}</b></span>
+      </div>
+      ${t.treasury ? `<div class="treasury"><div class="t">🧠 Mind treasury</div>
+        <div class="stats" style="margin-top:0">
+          <span>Balance <b>${fmt(t.treasury.balance, 0)}</b></span>
+          <span>Value <b>$${fmt(t.treasuryValue, 0)}</b></span>
+          <span>Proposals <b>${t.treasury.proposals}</b></span>
+          <span>P&L 24h <b class="${cls(t.treasuryValue - t.treasuryValue24h)}">${t.treasuryValue - t.treasuryValue24h >= 0 ? "+" : ""}$${fmt(t.treasuryValue - t.treasuryValue24h, 0)}</b></span>
+        </div></div>` : `<div class="treasury muted">not governed by the Mind</div>`}
+    </div>
+  `).join("");
+
+  const tr = document.getElementById("treasuries");
+  if (!p.tokens.some((t) => t.treasury)) {
+    tr.innerHTML = '<div class="muted">No treasuries deployed yet.<br>Run <span class="cmd">npm run mind:deploy</span></div>';
+  } else {
+    tr.innerHTML = p.tokens.filter((t) => t.treasury).map((t) => `
+      <div class="info"><span>$${t.symbol}</span><b>$${fmt(t.treasuryValue, 0)}</b></div>
+      <div class="info"><span class="muted">${t.treasury.address.slice(0, 8)}…</span><span class="muted">${t.treasury.proposals} props</span></div>
+    `).join("");
+  }
+
+  const srcEl = document.getElementById("sources");
+  const s = p.sources || {};
+  if (!Object.keys(s).length) {
+    srcEl.innerHTML = '<div class="muted">No price data yet.</div>';
+  } else {
+    srcEl.innerHTML = Object.entries(s).map(([k, v]) => `
+      <div class="info"><span class="src ${srcLabel(k)}" style="text-transform:capitalize">${srcLabel(k)}</span><b>${v} token${v > 1 ? "s" : ""}</b></div>
+    `).join("");
+  }
+}
+
+async function load() {
+  try {
+    const r = await fetch("/api/portfolio");
+    const p = await r.json();
+    if (p.error) throw new Error(p.error);
+    render(p);
+  } catch (e) {
+    document.getElementById("grid").innerHTML = `<div class="center">Failed to load: ${e.message}<br>Is the chain running? (npm run node)</div>`;
+  }
+}
+load();
+setInterval(load, 10000);
+</script>
+</body>
+</html>

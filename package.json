@@ -1,0 +1,35 @@
+{
+  "name": "cryto-token",
+  "version": "1.3.0",
+  "description": "CrytoToken — educational ERC-20 + Crytoverse + autonomous AI governance + statistics desktop app (testnet only)",
+  "main": "desktop/main.js",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "deploy": "hardhat run scripts/deploy.js --network sepolia",
+    "deploy:local": "hardhat run scripts/deploy.js --network localhost",
+    "node": "hardhat node",
+    "seed": "hardhat run scripts/seed-demo.js --network localhost",
+    "mind:deploy": "hardhat run scripts/deploy-mind.js --network localhost",
+    "mind": "node mind/governance-mind.js",
+    "mind:once": "node mind/governance-mind.js --once",
+    "mind:auto": "node mind/autonomous-mind.js",
+    "mind:auto:once": "node mind/autonomous-mind.js --once",
+    "mind:auto:cycle": "node mind/autonomous-mind.js --cycle",
+    "tracker": "node tracker/server.js",
+    "tracker:once": "node tracker/server.js --once",
+    "market": "node tracker/market-server.js",
+    "market:once": "node -e \"require('./tracker/market').getMarket(20).then(m=>console.log(JSON.stringify(m,null,2))).catch(e=>{console.error(e.message);process.exit(1)})\"",
+    "app": "electron .",
+    "stats": "electron ."
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "hardhat": "^2.22.0",
+    "dotenv": "^16.4.0",
+    "electron": "^33.2.0"
+  },
+  "dependencies": {
+    "ethers": "^6.13.0"
+  }
+}

@@ -1,0 +1,41 @@
+# === Secrets — NEVER commit these ===
+.env
+.env.bak
+.env.local
+*.pem
+*.key
+
+# === Dependencies ===
+node_modules/
+
+# === Hardhat build artifacts ===
+artifacts/
+cache/
+typechain-types/
+coverage/
+coverage.json
+
+# === Logs & runtime noise ===
+*.log
+*.err
+.hardhat-node.log
+.hardhat-node.err
+node.out.log
+node.err.log
+mind-dash.out.log
+mind-dash.err.log
+tunnel.log
+tunnel.err
+
+# === Local runtime state ===
+.node.pid
+deployments/
+mind/state.json
+
+# === Large binaries ===
+tools/*.exe
+tools/*.bat
+
+# === OS noise ===
+Thumbs.db
+.DS_Store

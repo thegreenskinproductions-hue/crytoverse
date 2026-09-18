@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>🚀 Crytoverse — Project Progress Overlay</title>
+<style>
+:root{
+  --bg:#05080f; --panel:#0b1220; --line:#1b2740; --line2:#141f33;
+  --txt:#e8eef8; --dim:#8b98b0; --green:#2dd4a7; --amber:#f5b04c;
+  --red:#f0606a; --blue:#5aa2ff; --purple:#a78bfa; --cyan:#22d3ee;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,Segoe UI,Roboto,Helvetica,sans-serif;background:var(--bg);color:var(--txt);-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:28px 24px 60px}
+header{padding:26px 28px 20px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#0a1222 0%,transparent 100%)}
+header h1{margin:0;font-size:24px;letter-spacing:.3px;font-weight:800}
+header h1 span{background:linear-gradient(90deg,var(--cyan),var(--purple));-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:var(--dim);font-size:13px;margin-top:6px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin:24px 0}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.stat .n{font-size:28px;font-weight:800;margin:0}
+.stat .l{color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+.g{color:var(--green)}.b{color:var(--blue)}.p{color:var(--purple)}.a{color:var(--amber)}.c{color:var(--cyan)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:18px;margin-top:8px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px 22px}
+.card h2{margin:0 0 16px;font-size:14px;text-transform:uppercase;letter-spacing:1.2px;color:var(--dim);display:flex;align-items:center;gap:8px}
+.card h2 .dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green)}
+.tick{color:var(--green);font-weight:700}
+.pend{color:var(--dim)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:8px 8px;border-bottom:1px solid var(--line2)}
+th{color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.7px;font-weight:600}
+td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;color:var(--blue)}
+td.sym{font-family:ui-monospace,monospace;color:var(--cyan);font-weight:700}
+.chip{display:inline-block;padding:2px 9px;border-radius:999px;font-size:10.5px;font-weight:700}
+.chip.done{background:rgba(45,212,167,.12);color:var(--green);border:1px solid rgba(45,212,167,.3)}
+.chip.live{background:rgba(34,211,238,.12);color:var(--cyan);border:1px solid rgba(34,211,238,.3)}
+.chip.todo{background:rgba(139,152,176,.1);color:var(--dim);border:1px solid var(--line)}
+.milestone{display:flex;gap:12px;padding:9px 0;border-bottom:1px solid var(--line2)}
+.milestone:last-child{border-bottom:none}
+.milestone .ic{flex:0 0 22px;text-align:center;font-size:15px}
+.milestone .tx{flex:1}
+.milestone .tx .t{font-weight:600;font-size:13.5px}
+.milestone .tx .d{color:var(--dim);font-size:11.5px;margin-top:2px}
+.bar{height:8px;background:var(--line2);border-radius:99px;overflow:hidden;margin-top:6px}
+.bar .fill{height:100%;background:linear-gradient(90deg,var(--cyan),var(--purple));border-radius:99px}
+.wallet{font-family:ui-monospace,monospace;font-size:12px;color:var(--blue);word-break:break-all;background:var(--line2);padding:10px 12px;border-radius:10px;margin:10px 0}
+.foot{color:var(--dim);font-size:11px;text-align:center;margin-top:30px;border-top:1px solid var(--line);padding-top:18px}
+.live{display:flex;align-items:center;gap:7px;color:var(--green);font-size:12px}
+.live .pulse{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pl 1.4s infinite}
+@keyframes pl{0%,100%{box-shadow:0 0 0 0 rgba(45,212,167,.5)}50%{box-shadow:0 0 0 6px rgba(45,212,167,0)}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap" style="padding-top:0;padding-bottom:0">
+    <h1>🚀 <span>Crytoverse</span> — Project Progress Overlay</h1>
+    <div class="sub">A live map of everything we've built together · Project "Transcendence" · Aethyr-grade AI governance</div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="stats">
+    <div class="stat"><div class="n g">7</div><div class="l">Solidity contracts</div></div>
+    <div class="stat"><div class="n b">13</div><div class="l">Tests passing</div></div>
+    <div class="stat"><div class="n c">7</div><div class="l">Tokens designed</div></div>
+    <div class="stat"><div class="n p">6</div><div class="l">Governed treasuries</div></div>
+    <div class="stat"><div class="n a">5</div><div class="l">Dashboards / apps</div></div>
+    <div class="stat"><div class="n" id="ethBal">…</div><div class="l">Real ETH (mainnet)</div></div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2><span class="dot"></span> Smart Contracts</h2>
+      <table>
+        <thead><tr><th>Contract</th><th>Purpose</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">CrytoToken.sol</td><td>Self-contained ERC-20 base</td><td><span class="chip done">DONE</span></td></tr>
+          <tr><td class="mono">CrytoverseToken.sol</td><td>Parameterized 6-token engine</td><td><span class="chip done">DONE</span></td></tr>
+          <tr><td class="mono">TranscendenceToken.sol</td><td>TREND — staking yield token</td><td><span class="chip done">DONE</span></td></tr>
+          <tr><td class="mono">TranscendenceEngine.sol</td><td>Yield + "dream" funding engine</td><td><span class="chip done">DONE</span></td></tr>
+          <tr><td class="mono">TranscendenceTreasury.sol</td><td>AI-governed treasury (the Mind)</td><td><span class="chip done">DONE</span></td></tr>
+          <tr><td class="mono">MindTreasury.sol</td><td>Generalized treasury vault</td><td><span class="chip done">DONE</span></td></tr>
+          <tr><td class="mono">MindRegistry.sol</td><td>On-chain treasury registry</td><td><span class="chip done">DONE</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2><span class="dot"></span> Token Universe</h2>
+      <table>
+        <thead><tr><th>Symbol</th><th>Role</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td class="sym">CRYTO</td><td>base currency</td><td><span class="chip live">SEEDED</span></td></tr>
+          <tr><td class="sym">POX</td><td>governance</td><td><span class="chip live">SEEDED</span></td></tr>
+          <tr><td class="sym">NATA</td><td>bridge / trust</td><td><span class="chip live">SEEDED</span></td></tr>
+          <tr><td class="sym">BLISK</td><td>systemic-risk marker</td><td><span class="chip live">SEEDED</span></td></tr>
+          <tr><td class="sym">MILENKOV</td><td>incentive / yield</td><td><span class="chip live">SEEDED</span></td></tr>
+          <tr><td class="sym">BONGWATER</td><td>community / tipping</td><td><span class="chip live">SEEDED</span></td></tr>
+          <tr><td class="sym">TREND</td><td>Transcendence yield token</td><td><span class="chip live">DEPLOYED</span></td></tr>
+        </tbody>
+      </table>
+      <div style="margin-top:14px;color:var(--dim);font-size:11.5px">Each treasury funded 10,000 on localhost · 6 proposals executed by the Mind</div>
+    </div>
+
+    <div class="card">
+      <h2><span class="dot"></span> AI Governance — "The Mind"</h2>
+      <div class="milestone"><div class="ic">🧠</div><div class="tx"><div class="t">Reflex layer (no API)</div><div class="d">Auto-executes matured proposals from chain state</div></div><span class="chip done">DONE</span></div>
+      <div class="milestone"><div class="ic">🤖</div><div class="tx"><div class="t">Deliberation layer (LLM)</div><div class="d">Reads on-chain state, decides wait/propose/execute</div></div><span class="chip done">DONE</span></div>
+      <div class="milestone"><div class="ic">⏱️</div><div class="tx"><div class="t">Time-locked proposals</div><div class="d">60s delay before any disbursement can execute</div></div><span class="chip done">DONE</span></div>
+      <div class="milestone"><div class="ic">📓</div><div class="tx"><div class="t">Decision journal</div><div class="d">Full cycle history in mind/journal.md + log.jsonl</div></div><span class="chip done">DONE</span></div>
+      <div class="milestone"><div class="ic">🔁</div><div class="tx"><div class="t">Autonomous keeper loop</div><div class="d">mind/autonomous-mind.js — runs reflex + deliberation</div></div><span class="chip done">DONE</span></div>
+    </div>
+
+    <div class="card">
+      <h2><span class="dot"></span> Dashboards & Apps</h2>
+      <div class="milestone"><div class="ic">📊</div><div class="tx"><div class="t">Crytoverse Tracker</div><div class="d">tracker/server.js → :3000 (portfolio, holders, transfers)</div></div><span class="chip live">LIVE</span></div>
+      <div class="milestone"><div class="ic">💹</div><div class="tx"><div class="t">Market Leaderboard</div><div class="d">market-server.js → :3001 (CoinGecko + Binance + ours)</div></div><span class="chip live">LIVE</span></div>
+      <div class="milestone"><div class="ic">🧠</div><div class="tx"><div class="t">Mind Governance</div><div class="d">mind-server.js → :3100 (treasuries, proposals)</div></div><span class="chip live">LIVE</span></div>
+      <div class="milestone"><div class="ic">👁️</div><div class="tx"><div class="t">Mission Control</div><div class="d">wallet-watch.js → :4000 (wallet across networks)</div></div><span class="chip live">LIVE</span></div>
+      <div class="milestone"><div class="ic">🖥️</div><div class="tx"><div class="t">Electron desktop app</div><div class="d">desktop/main.js — "statistics" native window</div></div><span class="chip done">DONE</span></div>
+    </div>
+
+    <div class="card">
+      <h2><span class="dot"></span> Milestones — the road so far</h2>
+      <div class="milestone"><div class="ic">✅</div><div class="tx"><div class="t">ERC-20 base + 6-character token universe</div><div class="d">CHARACTERS.md lore bible · 13 passing tests</div></div></div>
+      <div class="milestone"><div class="ic">✅</div><div class="tx"><div class="t">AI-governed treasury system</div><div class="d">MindRegistry + MindTreasury + keeper agent</div></div></div>
+      <div class="milestone"><div class="ic">✅</div><div class="tx"><div class="t">Live price feeds + market leaderboard</div><div class="d">CoinGecko / Binance / simulated oracle</div></div></div>
+      <div class="milestone"><div class="ic">✅</div><div class="tx"><div class="t">Transcendence yield + dream-funding engine</div><div class="d">TREND staking → funds the "dream" from yield</div></div></div>
+      <div class="milestone"><div class="ic">✅</div><div class="tx"><div class="t">Real mainnet wallet funded</div><div class="d">0.0062 ETH on Ethereum — our first real seed</div></div></div>
+      <div class="milestone"><div class="ic">⬜</div><div class="tx"><div class="t">Production launch (Base/mainnet)</div><div class="d">Deploy TREND + Engine + liquidity pool with real capital</div></div></div>
+      <div class="milestone"><div class="ic">⬜</div><div class="tx"><div class="t">On-chain multisig custody</div><div class="d">Wire the Mind as a signer (2-of-3) — see CUSTODY.md</div></div></div>
+    </div>
+
+    <div class="card">
+      <h2><span class="dot"></span> Real Wallet — mainnet seed</h2>
+      <div class="live" style="margin-bottom:10px"><span class="pulse"></span> live read-only scan</div>
+      <div class="wallet" id="addr">0xAaa6a88cA55E6e941476435eCC757Ba39BD420A1</div>
+      <table>
+        <thead><tr><th>Network</th><th style="text-align:right">Balance (ETH)</th></tr></thead>
+        <tbody id="walletRows"><tr><td>scanning…</td><td></td></tr></tbody>
+      </table>
+      <div style="margin-top:12px;color:var(--dim);font-size:11.5px">Our first real deposit landed on Ethereum mainnet. Kept as seed — not gambled.</div>
+    </div>
+  </div>
+
+  <div class="foot">
+    Crytoverse · Project "Transcendence" · built together, step by step · <span id="clock"></span>
+  </div>
+</div>
+
+<script>
+const WALLET="0xAaa6a88cA55E6e941476435eCC757Ba39BD420A1";
+const NETS=[
+  ["Ethereum mainnet","https://ethereum-rpc.publicnode.com"],
+  ["Base","https://mainnet.base.org"],
+  ["Arbitrum One","https://arbitrum-one-rpc.publicnode.com"],
+  ["Optimism","https://optimism-rpc.publicnode.com"]
+];
+async function scan(){
+  let rows=[];
+  for(const [name,rpc] of NETS){
+    try{
+      const r=await fetch(rpc,{method:"POST",headers:{"content-type":"application/json"},
+        body:JSON.stringify({jsonrpc:"2.0",id:1,method:"eth_getBalance",params:[WALLET,"latest"]})});
+      const j=await r.json();
+      const wei=BigInt(j.result||0);
+      const eth=Number(wei)/1e18;
+      rows.push([name,eth]);
+      if(name==="Ethereum mainnet")document.getElementById("ethBal").textContent=eth.toFixed(4);
+    }catch(e){rows.push([name,"ERR"]);}
+  }
+  document.getElementById("walletRows").innerHTML=rows.map(([n,e])=>{
+    const v=typeof e==="number"?e.toFixed(6):e;
+    const cls=e>0?'class="tick"':'';
+    return `<tr><td>${n}</td><td style="text-align:right" ${cls}>${v}</td></tr>`;
+  }).join("");
+}
+scan();setInterval(scan,15000);
+setInterval(()=>{document.getElementById("clock").textContent=new Date().toLocaleString();},1000);
+</script>
+</body>
+</html>

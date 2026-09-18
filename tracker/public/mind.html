@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Mind — Governance</title>
+<style>
+  :root {
+    --bg:#070a10; --panel:#121828; --panel2:#0f1523; --border:#232c44;
+    --text:#e8edf7; --muted:#8b95ac; --accent:#8b6cff; --accent2:#4dd0e1;
+    --green:#3ddc84; --red:#ff5c7a; --amber:#ffb74d; --mono:"Cascadia Code",Consolas,monospace;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:radial-gradient(1100px 550px at 85% -10%, rgba(139,108,255,.14), transparent 60%), var(--bg);
+    color:var(--text); font-family:"Segoe UI",system-ui,sans-serif; padding:26px; line-height:1.5; min-height:100vh; }
+  header { display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:12px; margin-bottom:20px; }
+  h1 { font-size:24px; letter-spacing:1px; } h1 .dot { color:var(--green); }
+  .subtitle { color:var(--muted); font-size:13px; margin-top:6px; }
+  .status { color:var(--muted); font-size:13px; text-align:right; }
+  .mono { font-family:var(--mono); } .addr { color:var(--muted); font-family:var(--mono); font-size:11px; word-break:break-all; }
+  .overview { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin-bottom:22px; }
+  .ov { background:linear-gradient(180deg, rgba(139,108,255,.08), transparent), var(--panel); border:1px solid var(--border); border-radius:13px; padding:14px 16px; }
+  .ov .l { color:var(--muted); font-size:10.5px; text-transform:uppercase; letter-spacing:.6px; }
+  .ov .v { font-size:20px; font-weight:700; margin-top:3px; }
+  .ov .v.exec { color:var(--green); } .ov .v.mat { color:var(--amber); } .ov .v.pen { color:var(--accent2); }
+  h2 { font-size:15px; letter-spacing:.5px; margin:22px 0 10px; color:var(--text); }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:14px; }
+  .card { background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:16px; }
+  .card .head { display:flex; justify-content:space-between; align-items:center; }
+  .sym { font-weight:700; font-size:16px; letter-spacing:1px; }
+  .role { color:var(--accent2); font-size:11px; text-transform:uppercase; letter-spacing:.5px; }
+  .bal { margin:10px 0 4px; font-size:22px; font-weight:700; font-family:var(--mono); }
+  .bal small { color:var(--muted); font-size:12px; font-weight:400; }
+  .bar { height:6px; background:var(--panel2); border-radius:99px; overflow:hidden; margin:6px 0 12px; }
+  .bar i { display:block; height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2)); border-radius:99px; }
+  .props { border-top:1px solid var(--border); padding-top:8px; }
+  .p { padding:8px 0; border-bottom:1px dashed var(--border); font-size:12.5px; }
+  .p:last-child { border-bottom:none; }
+  .tag { display:inline-block; font-size:10px; font-weight:600; letter-spacing:.5px; padding:2px 7px; border-radius:99px; margin-left:6px; }
+  .tag.EXECUTED { background:rgba(61,220,132,.15); color:var(--green); }
+  .tag.MATURED { background:rgba(255,183,77,.15); color:var(--amber); }
+  .tag.PENDING { background:rgba(77,208,225,.15); color:var(--accent2); }
+  .tag.CANCELLED { background:rgba(255,92,122,.15); color:var(--red); }
+  .amt { font-family:var(--mono); color:var(--text); }
+  .memo { color:var(--muted); font-size:11.5px; }
+  .feed { background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:16px; }
+  .entry { padding:9px 0; border-bottom:1px dashed var(--border); font-size:12.5px; }
+  .entry:last-child { border-bottom:none; }
+  .entry .t { color:var(--muted); font-size:11px; font-family:var(--mono); }
+  .act { font-family:var(--mono); }
+  .act.wait { color:var(--muted); } .act.propose { color:var(--accent2); } .act.execute { color:var(--green); } .act.cancel { color:var(--red); }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>🧠 The Mind <span class="dot">●</span> <span style="color:var(--muted);font-size:14px">Governance</span></h1>
+    <div class="subtitle">Autonomous treasury keeper — watches on-chain state, proposes, time-locks, executes. Zero babysitting.</div>
+  </div>
+  <div class="status">Updated <span id="updated" class="mono">—</span><br><span id="chain" class="mono"></span></div>
+</header>
+
+<div class="overview" id="overview"></div>
+<h2>Governed Treasuries</h2>
+<div class="grid" id="treasuries"></div>
+<h2>Mind Decision Journal</h2>
+<div class="feed" id="journal"></div>
+
+<script>
+const fmt = (n, d = 2) => (n == null ? "—" : Number(n).toLocaleString(undefined, { minimumFractionDigits: d, maximumFractionDigits: d }));
+const short = (a) => a ? a.slice(0,6) + "…" + a.slice(-4) : "—";
+
+function statusCls(s) { return { EXECUTED:"exec", MATURED:"mat", PENDING:"pen", CANCELLED:"" }[s] || ""; }
+
+async function load() {
+  try {
+    const g = await (await fetch("/api/mind")).json();
+    render(g);
+  } catch (e) {
+    document.getElementById("overview").innerHTML = `<div style="color:var(--red)">Failed to load: ${e.message}</div>`;
+  }
+}
+
+function render(g) {
+  document.getElementById("updated").textContent = new Date(g.updatedAt).toLocaleTimeString();
+  document.getElementById("chain").textContent = `chain block-time ${g.chainNow} · delay ${g.delay}s · ${g.network}`;
+
+  const s = g.stats;
+  document.getElementById("overview").innerHTML = `
+    <div class="ov"><div class="l">Treasuries</div><div class="v">${s.treasuries}</div></div>
+    <div class="ov"><div class="l">Total Proposals</div><div class="v">${s.totalProposals}</div></div>
+    <div class="ov"><div class="l">Executed</div><div class="v exec">${s.executed}</div></div>
+    <div class="ov"><div class="l">Matured (ready)</div><div class="v mat">${s.matured}</div></div>
+    <div class="ov"><div class="l">Pending</div><div class="v pen">${s.pending}</div></div>
+    <div class="ov"><div class="l">Cancelled</div><div class="v">${s.cancelled}</div></div>
+    <div class="ov"><div class="l">Total Disbursed</div><div class="v exec">${fmt(s.totalDisbursed)}</div></div>
+  `;
+
+  document.getElementById("treasuries").innerHTML = g.treasuries.map(t => {
+    const funded = t.funded || 1;
+    const pct = Math.max(0, Math.min(100, (t.balance / funded) * 100));
+    const props = t.proposals.slice().reverse().map(p => `
+      <div class="p">
+        <span class="amt">${fmt(p.amount)} ${t.symbol}</span>
+        <span class="tag ${p.status}">${p.status}</span>
+        <div class="memo">→ ${short(p.target)} · ${p.memo || "no memo"}</div>
+      </div>`).join("");
+    return `
+      <div class="card">
+        <div class="head"><span class="sym">$${t.symbol}</span><span class="role">${t.role}</span></div>
+        <div class="addr">${short(t.treasury)}</div>
+        <div class="bal">${fmt(t.balance)} <small>of ${fmt(t.funded)}</small></div>
+        <div class="bar"><i style="width:${pct}%"></i></div>
+        <div class="props">${props || '<div style="color:var(--muted);font-size:12px">no proposals yet</div>'}</div>
+      </div>`;
+  }).join("");
+
+  document.getElementById("journal").innerHTML = g.journal.slice().reverse().map(j => {
+    const items = j.decisions.map(d => {
+      const act = d.action || (d.result && d.result.action) || "—";
+      const detail = d.reasoning || (d.result && d.result.detail) || "";
+      const amt = d.amount ? ` ${fmt(d.amount)} ${d.token}` : "";
+      return `<div class="entry">
+        <div><span class="act ${act}">${act.toUpperCase()}</span><span class="amt">${amt}</span></div>
+        <div class="memo">${detail}</div>
+      </div>`;
+    }).join("");
+    return `<div class="entry">
+      <div class="t">${new Date(j.ts).toLocaleString()} · ${j.source || "?"}</div>
+      ${items}
+    </div>`;
+  }).join("");
+}
+
+load();
+setInterval(load, 5000);
+</script>
+</body>
+</html>
